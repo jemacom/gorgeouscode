@@ -16,3 +16,6 @@
 
 ### Other:
 * Use posgresql as your database
+
+### Installation
+* If you have errors with the gem `eventmachine` maybe this solution helps <https://stackoverflow.com/questions/30818391/gem-eventmachine-fatal-error-openssl-ssl-h-file-not-found>
