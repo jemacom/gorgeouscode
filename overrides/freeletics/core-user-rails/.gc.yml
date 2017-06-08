@@ -1,0 +1,19 @@
+language: ruby
+sudo: false
+cache: bundler
+rvm:
+  - 2.4.1
+
+addons:
+  postgresql: "9.4"
+
+before_script:
+  - pg_config --version
+  - cp config/secrets.yml.example config/secrets.yml
+  - psql -c "create database freeletics_core_user_rails;" -U postgres
+  - psql -c "create database freeletics_core_user_rails_test;" -U postgres
+  - psql -c "create database freeletics_core_user_rails_core_admin_test;" -U postgres
+  - bundle exec rake db:schema:load RAILS_ENV=development
+
+  # vm_connection.rb#get_simplecov_last_percent calls rake db:migrate
+  # - bundle exec rake --trace db:schema:load RAILS_ENV=test

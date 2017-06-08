@@ -1,0 +1,16 @@
+default: &default
+  adapter: postgresql
+  username: postgres
+
+development:
+  <<: *default
+  database: freeletics_fl_backend_rails
+
+test:
+  <<: *default
+  database: freeletics_fl_backend_rails_test
+
+core_user_test:
+  <<: *default
+  database: freeletics_fl_backend_rails_core_user_test
+
