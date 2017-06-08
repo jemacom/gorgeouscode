@@ -16,7 +16,8 @@
       <% if @project.reports.last.model_diagram_analysis.json_data? %>
         <% if @model_diagram_json %>
           <script>
-var model_diagram_json = <%= raw @model_diagram_json %>;
+            var model_diagram_json = <%= raw @model_diagram_json %>;
+            var git_bash_path = "<%= @github_base_path %>";
           </script>
         <% end %>
 
