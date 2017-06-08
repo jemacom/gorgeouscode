@@ -26,6 +26,7 @@
   <% model_diagram_json = last_report.model_diagram_analysis.json_data %>
   <script>
     var model_diagram_json = <%= raw model_diagram_json %>;
+    var git_bash_path = "<%= @project.github_url %>";
   </script>
 
   <h4>Model diagram</h4>
