@@ -1,5 +1,5 @@
 projects/*
-
+lib/.gc.yml.example
 
 # Created by https://www.gitignore.io/api/ruby,rails,rubymine,visualstudiocode
 
