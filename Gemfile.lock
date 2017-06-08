@@ -164,7 +164,7 @@ GEM
       thor (>= 0.14, < 2.0)
     jquery-ui-rails (5.0.5)
       railties (>= 3.2.16)
-    json (1.8.3)
+    json (1.8.6)
     jwt (1.5.6)
     kaminari (0.17.0)
       actionpack (>= 3.0.0)
@@ -295,7 +295,8 @@ GEM
       json (~> 1.8)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.0)
-    spring (1.7.1)
+    spring (2.0.2)
+      activesupport (>= 4.2)
     sprockets (3.7.0)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
@@ -362,7 +363,7 @@ DEPENDENCIES
   woodlock!
 
 RUBY VERSION
-   ruby 2.2.1p85
+   ruby 2.3.3p222
 
 BUNDLED WITH
-   1.12.5
+   1.15.0
