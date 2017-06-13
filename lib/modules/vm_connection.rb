@@ -162,59 +162,21 @@ class VMConnection
     File.exist?(path) ? File.read(path) : false
   end
 
-  def read_model_description
-    models_path = home_fullpath + '/repository/app/models'
-
-    result = {}
-
-    Dir[models_path + "/**/*.rb"].each do |f|
-      filepath = f
-      filename = f.remove(models_path + "/")
-      modelname = filename.chomp('.rb').camelize
-      result[modelname] = extract_description_from_file(filepath)
+  def read_files_in_folder(folder)
+    result = []
+    
+    Dir[home_fullpath + '/' +  folder].each do |filepath|
+      result.push(filepath.remove(home_fullpath + "/"))
     end
 
-    return result
+    result
+  end
+
+  def read_content_of_file(filepath)
+    File.open(home_fullpath + "/" + filepath)
   end
 
   private
-
-def extract_description_from_file(filepath) 
-    comment_started = false
-    result = []
-    file = File.open(filepath).each do |line|
-      
-      # Description should look like this:
-      # 
-      #    # == Description
-      #    # This is a Description
-      #    # Seconod line of the description
-      #    # 
-      #
-
-      if(line =~ /\s*#\s*==\s*Description\s*/)
-          comment_started = true
-      elsif(comment_started && line =~ /\s*#/)
-          # Comment text    
-          cleaned_line = line.remove("#").lstrip.chomp
-          puts cleaned_line
-          
-          if(!cleaned_line.blank?)
-              result.push(cleaned_line)
-          end
-
-      else
-          comment_started = false
-      end
-    end
-
-   
-
-    file.close
-
-    return result
-end
-
 
   def get_json_file_path(report)
     File.join(tmp_fullpath, report.project.github_owner + "_" + report.project.github_name + "_" + report.commit_hash + ".json")
