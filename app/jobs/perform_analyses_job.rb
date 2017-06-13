@@ -5,7 +5,6 @@ class PerformAnalysesJob < ActiveJob::Base
     rails_best_practices_analysis = Analyses::RailsBestPracticesAnalysis.create!(report: report)
     model_diagram_analysis = Analyses::ModelDiagramAnalysis.create!(report: report)
     code_coverage_analysis = Analyses::CodeCoverageAnalysis.create!(report: report)
-    
     connection = VMConnection.new(report)
 
     begin
@@ -16,8 +15,8 @@ class PerformAnalysesJob < ActiveJob::Base
       Rails.logger.debug "\n\n ----- Executing model_diagram_analysis (PerformAnalysesJob) ... ----- \n\n"
       model_diagram_analysis.run
             
-      #Rails.logger.debug "\n\n ----- Executing code_coverage_analysis (PerformAnalysesJob) ... ----- \n\n"
-      #code_coverage_analysis.run
+      Rails.logger.debug "\n\n ----- Executing code_coverage_analysis (PerformAnalysesJob) ... ----- \n\n"
+      code_coverage_analysis.run
       
       report.project.remove_github_hook(report) unless mark_as_analysed(report)
     rescue Exception
