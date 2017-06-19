@@ -13,10 +13,6 @@ class Analyses::ModelDiagramAnalysis < ActiveRecord::Base
 
     json_data = JSON.parse(@connection.generate_files_and_read_json)
 
-    #puts model_descriptions
-    #puts "-----------"
-    #puts json_data
-
     json_data['models']['nodes'].each do |node|
       node['description'] = ''
       model_descriptions.each do |key, value|
