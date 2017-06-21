@@ -47,7 +47,6 @@ class PerformAnalysesJob < ActiveJob::Base
   end
 
   def last_report_analyses?(report)
-    return true # REMOVE THIS
     report.model_diagram_analysis.json_data? ||
       report.rails_best_practices_analysis.nbp_report ||
       report.rails_best_practices_analysis.score
