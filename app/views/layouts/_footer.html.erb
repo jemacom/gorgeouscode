@@ -1,5 +1,24 @@
-<div id="footer">
+
+<footer class="page-footer">
   <div class="container">
-    <p class='text-center'><%= link_to 'Miguel Regedor', 'http://www.regedor.com', target: '_blank' %> <%= Time.zone.now.year %></p>
+    <div class="row">
+      <div class="col l6 s12">
+        <p class="grey-text text-lighten-4">Made with ♥ at Freeletics</p>
+      </div>
+      <div class="col l4 offset-l2 s12">
+        <h5 class="white-text">Links</h5>
+        <ul>
+          <li><%= link_to 'Miguel Regedor', 'http://www.regedor.com', target: '_blank', class: 'grey-text text-lighten-3' %></li>
+          <li><%= link_to 'Rails Best Practices', 'http://www.regedor.com', target: '_blank', class: 'grey-text text-lighten-3' %></li>
+          <li><%= link_to 'Railroady', 'http://www.regedor.com', target: '_blank', class: 'grey-text text-lighten-3' %></li>
+          <li><%= link_to 'Freeletics', 'http://www.regedor.com', target: '_blank', class: 'grey-text text-lighten-3' %></li>
+        </ul>
+      </div>
+    </div>
   </div>
-</div>
+  <div class="footer-copyright">
+    <div class="container">
+    © <%= Time.zone.now.year %> Copyright Text
+    </div>
+  </div>
+</footer>

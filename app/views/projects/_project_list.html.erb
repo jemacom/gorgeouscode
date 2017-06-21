@@ -1,9 +1,9 @@
 <% if existing_projects.present? %>
   <div class="row">
     <h4 class="text-muted">My repositories</h4>
-    <ul class="list-group project-list-group">
+    <ul class="collection with-header">
       <% existing_projects.each do |project| %>
-        <li class="project-item overflow-auto">
+        <li class="collection-item">
 
           <%= link_to show_last_report_path(project.github_owner, project.github_name), class: "project-list-item" do %>
 
@@ -12,13 +12,13 @@
                 <%= render "lock_icon", github_private: project.github_private %>
                 <%= project.github_owner %>/<%= project.github_name %>
               </p>
-              <p class="analysed-badge analysed-success pull-right">Analysed <i class="fa fa-list"></i></p>
+              <p class="analysed-badge analysed-success pull-right btn">Analysed <i class="fa fa-list"></i></p>
             <% else %>
               <p class="display-inline-block project-owner-name">
                 <%= render "lock_icon", github_private: project.github_private %>
                 <%= project.github_owner %>/<%= project.github_name %>
               </p>
-              <p class="analysed-badge analysed-waiting pull-right">Waiting to be analysed</p>
+              <p class="analysed-badge analysed-waiting pull-right btn">Waiting to be analysed</p>
             <% end %>
           <% end %>
         </li>
@@ -29,9 +29,9 @@
 
 <% if missing_projects.present? %>
   <div class="row">
-    <ul class="list-group project-list-group">
+    <ul class="collection with-header">
       <% missing_projects.each do |project| %>
-        <li class="project-item overflow-auto">
+        <li class="collection-item">
           <div class="project-list-item">
             <p class="display-inline-block project-owner-name">
               <%= render "lock_icon", github_private: project[:github_private] %>

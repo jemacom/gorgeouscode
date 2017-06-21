@@ -1,6 +1,12 @@
 <html>
 <head>
   <title>Gorgeous Code</title>
+    <!--Import Google Icon Font-->
+  <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css">
+
+
   <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
   <script src="https://d3js.org/d3.v3.js"></script>
   <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
@@ -10,9 +16,9 @@
   <div class="wrapper padding-top-20px">
     <div class="col-md-12 padding-bottom-20px">
       <%= raw display_flash_messages %>
-
-      <%= link_to "< Back to report", show_last_report_path(@project.github_owner, @project.github_name), class: "btn btn-default" %>
-
+      <p>
+      <%= link_to '<i class="fa fa-arrow-left"></i> Back to report'.html_safe, show_last_report_path(@project.github_owner, @project.github_name), class: 'btn btn-primary btn-large' %>
+      </p>
       <% if @project.reports.last.model_diagram_analysis.json_data? %>
         <% if @model_diagram_json %>
           <script>
@@ -36,5 +42,8 @@
   </div>
   <%= render 'layouts/footer' %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+      <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>   
 </body>
 </html>
