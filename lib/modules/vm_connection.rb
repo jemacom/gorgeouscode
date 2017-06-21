@@ -16,7 +16,7 @@ class VMConnection
     ";"
 
   SYSTEM_DEPENDENCIES =
-    'export PATH="$PATH:$HOME/.rvm/bin"; source /home/miguel/.rvm/scripts/rvm'.freeze
+    'export PATH="$PATH:$HOME/.rvm/bin"; source /Users/Markus.Springer/.rvm/scripts/rvm'.freeze
 
   def initialize(report)
     @report = report
@@ -58,7 +58,8 @@ class VMConnection
     puts "\n\n\n ----------------- RUN TESTS \n\n\n"
 
     execute_in_rails_app(["RAILS_ENV=test bin/rake db:migrate"])
-    execute_in_rails_app(["RAILS_ENV=test bundle exec rake test"])
+    # TODO: add desired test framework to .gc.yml
+    # execute_in_rails_app(["RAILS_ENV=test bundle exec rake test"])
     execute_in_rails_app(["RAILS_ENV=test bundle exec rspec"])
 
     last_run_json_path = File.join(rails_fullpath, "coverage", ".last_run.json")
@@ -160,6 +161,20 @@ class VMConnection
   def read_json_data
     path = get_json_file_path(@report)
     File.exist?(path) ? File.read(path) : false
+  end
+
+  def read_files_in_folder(folder)
+    result = []
+    
+    Dir[home_fullpath + '/' +  folder].each do |filepath|
+      result.push(filepath.remove(home_fullpath + "/"))
+    end
+
+    result
+  end
+
+  def read_content_of_file(filepath)
+    File.open(home_fullpath + "/" + filepath)
   end
 
   private

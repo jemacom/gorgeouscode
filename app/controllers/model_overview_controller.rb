@@ -8,7 +8,7 @@ class ModelOverviewController < ApplicationController
   def show_last_report_model_overview
     @model_diagram_json = nil
     project_reports = @project.reports if @project
-
+    
     if project_reports
       last_model_diagram_analysis =
         project_reports.last.model_diagram_analysis
