@@ -1,5 +1,6 @@
 projects/*
 lib/.gc.yml.example
+overrides/*
 
 # Created by https://www.gitignore.io/api/ruby,rails,rubymine,visualstudiocode
 
