@@ -1,0 +1,1 @@
+FROM docker.freeletics.com/rails-baseimage:2016-06-23_16-44
