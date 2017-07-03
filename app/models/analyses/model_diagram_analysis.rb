@@ -76,5 +76,5 @@ class Analyses::ModelDiagramAnalysis < ActiveRecord::Base
     end
 
     return result
-end
+  end
 end
