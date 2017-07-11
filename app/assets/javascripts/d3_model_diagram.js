@@ -1,271 +1,318 @@
-const ELIPSE_WIDTH_FACTOR  = 5,
+var model_diagram_json_orig = prepareData(model_diagram_json);
+
+function prepareData(data) {
+  data["models"].nodes.forEach((node) => {
+
+    node.orig_name = JSON.parse(JSON.stringify(node.name.replace('::', '')));
+    node.name = node.name.replace(/_/g, '::');
+  });
+
+  return JSON.parse(JSON.stringify(data));
+}
+
+const ELIPSE_WIDTH_FACTOR = 5,
   RECT_WIDTH_FACTOR = 3,
   EXPANDED_TOP_PADDING = -10,
   TYPE_COLORS = [
-    ['Integer' , 'blue'],
-    ['Boolean' , 'darkGreen'],
-    ['Float'   , 'darkBlue'],
-    ['String'  , 'brown'],
-    ['Json'    , 'green'],
+    ['Integer', 'blue'],
+    ['Boolean', 'darkGreen'],
+    ['Float', 'darkBlue'],
+    ['String', 'brown'],
+    ['Json', 'green'],
     ['Datetime', 'darkOrange']
   ];
 
-function expandedWidth(maxLengthAttribute) {
-  return maxLengthAttribute * 3 + 10
-}
+var width = 780,
+  height = 400;
 
-function drawStub() {
-  return 'M 0,0 m -1,-5 L 1,-5 L 1,5 L -1,5 Z'
-}
+var zoom;
 
-function drawDiamond() {
-  return 'M -10,0 L 0,6 L 10,0 L 0,-6 Z'
-}
+var linkDistance = 300,
+  padding = 1000,
+  charge = -8000,
+  gravity = .3,
+  friction = .6,
+  linkStrength = 1,
+  chargeDistance = 1000;
 
-function drawSingleArrow() {
-  return 'M -3,-5 L 7,0 L -3,5'
-}
+var nodes = {};
+var svg;
 
-function drawDoubleArrow() {
-  return 'M -3,-5 L 7,0 L -3,5 M 7,-5 L 17,0 L 7,5'
-}
+var nodes_temp;
 
-function drawDoubleArrowBackwards() {
-  return 'M 7,-5 L -3,0 L 7,5 M 17,-5 L 7,0 L 17,5'
-}
+var savedGraph = {
+  nodes: []
+};
 
-function drawTripleArrow() {
-  return 'M -3,-5 L 7,0 L -3,5 M 7,-5 L 17,0 L 7,5 M 17,-5 L 27,0 L 17,5'
-}
+d3.select("#saveBtn").on('click', function () {
+  savedGraph.nodes = nodes_temp;
+  svg.selectAll("*").remove();
+});
 
-function drawDot() {
-  return 'M 0, 0  m -3, 0  a 3,3 0 1,0 6,0  a 3,3 0 1,0 -6,0'
-}
+d3.select("#loadBtn").on('click', function () {
+  var loadedGraph = {
+    nodes: [],
+    links: []
+  };
+  loadedGraph.nodes = savedGraph.nodes;
+  loadedGraph.links = JSON.parse(JSON.stringify(model_diagram_json_orig))["models"].links;
+  draw(loadedGraph);
+});
 
-function drawCrow() {
-  return 'M 0,-5 L 10,0 L 0,5'
-}
-
-function drawOdot() {
-  return "M 0, 0  m -5, 0  a 5,5 0 1,0 10,0  a 5,5 0 1,0 -10,0"
-}
-
-function drawRect(x, y, width, height) {
-  return "M" + x  + "," + y
-    + "h" + (width)
-    + "v" + (height)
-    + "h" + (width)
-    + "v" + (-height)
-    + "z";
-}
-
-function drawNodeElipse(attrLength) {
-  return "M -" + (attrLength + ELIPSE_WIDTH_FACTOR) * 2.5 + ",0 "
-    + "a" + (attrLength + ELIPSE_WIDTH_FACTOR) * 2.5 + ",10 0 1,0 " + (attrLength + ELIPSE_WIDTH_FACTOR) * 5 + ",0"
-    + "a" + (attrLength + ELIPSE_WIDTH_FACTOR) * 2.5 + ",10 0 1,0 -" + (attrLength + ELIPSE_WIDTH_FACTOR) * 5 + ",0"
-}
-
-function drawNodeRect(attrLength) {
-  return "M 0,0 m " + -(attrLength * RECT_WIDTH_FACTOR) +",-10 "
-    + "L " + (attrLength * RECT_WIDTH_FACTOR) + ",-10 "
-    + "L " + (attrLength * RECT_WIDTH_FACTOR) + ",10 "
-    + "L " + -(attrLength * RECT_WIDTH_FACTOR) + ",10 "
-    + " Z"
-}
-
-function drawNodeExpandedRect(numOfAttributes, expandedWidth) {
-  return "M " + -expandedWidth + "," + EXPANDED_TOP_PADDING
-    + "L " + expandedWidth + "," + EXPANDED_TOP_PADDING
-    + "L " + expandedWidth + "," + (numOfAttributes * 21 + 20)
-    + "L " + -expandedWidth + "," + (numOfAttributes * 21 + 20)
-    + " Z"
-}
-
-function drawNodeExpandedRoundedRect(numOfAttributes, expandedWidth, radius) {
-  return "M" + (radius - expandedWidth - 12) + "," + EXPANDED_TOP_PADDING
-    + " h" + (2 * expandedWidth - radius)
-    + " a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
-    + " v" + (numOfAttributes * 21 + 25 - (2 * radius))
-    + " a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
-    + " h" + (2 * radius - (2 * expandedWidth))
-    + " a" + radius + "," + radius + " 0 0 1 " + -radius + "," + -radius
-    + " v" + (-numOfAttributes * 21 - 25 + (2 * radius))
-    + " a" + radius + "," + radius + " 0 0 1 " + radius + "," + -radius
-    + " Z"
-}
-
-function drawRoundedRect(x, y, width, height, radius) {
-  return "M" + x + radius + "," + y
-    + " h" + (width - radius)
-    + " a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
-    + " v" + (height - 2 * radius)
-    + " a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
-    + " h" + (2 * radius - width)
-    + " a" + radius + "," + radius + " 0 0 1 " + -radius + "," + -radius
-    + " v" + (-height + 2 * radius)
-    + " a" + radius + "," + radius + " 0 0 1 " + radius + "," + -radius
-    + " Z"
-}
-
-generate_model_diagram_svg = function(model_diagram_json) {
-  var nodes = {};
-
-  var width  = 780,
-    height = 400;
-
-  var padding        = 20,
-    linkDistance   = 70,
-    charge         = -5000,
-    gravity        = .3,
-    friction       = .6,
-    linkStrength   = 0.5,
-    chargeDistance = 4000;
-
-  var zoom =
-    d3.behavior.zoom()
-    .scaleExtent([0,10])
-    .on("zoom", zoomed);
-
-  // Compute the distinct nodes from the links.
-  links = model_diagram_json["models"].links
-
-  model_diagram_json["models"].nodes.forEach(function(node){
-    var nodeShape = "";
-    var shapeType = "";
-    var nodeNameLength = node.name.length;
-
-    if (node.shape == "Mrecord") {
-      nodeShape = drawNodeElipse(nodeNameLength);
-      shapeType = "Mrecord";
-    } else if (node.shape == "record") {
-      nodeShape = drawNodeRect(nodeNameLength);
-      shapeType = "record";
-    } else {
-      nodeShape = drawNodeRect(nodeNameLength);
-      shapeType = "other";
-    }
-
-    nodes[node.name] = {
-      name: node.name.replace(/::/g,'_'),
-      attributes: node.attributes,
-      fillcolor: node.fillcolor,
-      fontcolor: node.fontcolor,
-      shape: nodeShape,
-      shapetype: shapeType
-    };
-
-    if (node.attributes == node.fillcolor == node.fontcolor == null) {
-      nodes[node.name].fillcolor = "#FFF";
-      nodes[node.name].fontcolor = "#000";
-    } else if (node.fillcolor == null) {
-      nodes[node.name].fillcolor = "#DDD";
-      nodes[node.name].fontcolor = "#000";
-    }
+d3.select("#release").on('click', function () {
+  force.nodes().forEach(function (d) {
+    d.fixed = false;
   });
+});
 
-  links.forEach(function(link) {
-    link.source = nodes[link.source] ||
-      (nodes[link.source] = {name: link.source, fillcolor: "#FFF", fontcolor: "#000", attributes: null, shape: drawNodeRect(link.source.length)});
-    link.target = nodes[link.target] ||
-      (nodes[link.target] = {name: link.target, fillcolor: "#FFF", fontcolor: "#000", attributes: null, shape: drawNodeRect(link.target.length)});
-  });
+var force = d3.layout.force()
+  .charge(charge)
+  .gravity(gravity)
+  .friction(friction)
+  .linkStrength(linkStrength)
+  .chargeDistance(chargeDistance)
+  .linkDistance(linkDistance)
+  .size([width, height]);
+
+
+if (typeof model_diagram_json !== "undefined") {
+  var graph = {
+    nodes: [],
+    links: []
+  };
+  graph.nodes = model_diagram_json["models"].nodes;
+  graph.links = model_diagram_json["models"].links;
+  draw(graph);
+}
+
+function draw(graph) {
+
+  console.log(graph);
+
+  function zoomed() {
+    viz.attr("transform",
+      "translate(" + d3.event.translate + ")" + "scale(" + d3.event.scale + ")");
+  };
 
   function linkDoubleClicked(link) {
     linkPath = d3.select(this)[0][0];
-    linkText = $("textpath#text" + linkPath.id);
-
+    linkText = $("#text" + linkPath.id);
     if (linkText.is(":visible")) {
-      linkText.css("display","none");
+      linkText.css("display", "none");
     } else {
-      linkText.css("display","inline");
+      linkText.css("display", "inline");
     }
   }
 
-  function clickGitSource(node){
-    window.open('http://www.sapo.pt');
+  function clickGitSource(node) {
+    var github_path = "http://github.com/freeletics/core-user-rails";
+    var names = node.name.split(/_/g);
+    console.log(names);
+    names.forEach((name) => {
+      github_path += "/" + name.toLowerCase();
+    })
+
+    //window.open('http://www.sapo.pt');
   }
 
   function drawEntireNodeExpanded(nodePathShape, maxLengthAttribute, node) {
+
     var expWidth = expandedWidth(maxLengthAttribute),
+
       numberOfAttributes = node.attributes.length;
     // inside node
-    d3.select(nodePathShape).attr('d', function (d) {
-      switch (d.shapetype) {
-        case 'Mrecord':
-          return drawNodeExpandedRoundedRect(numberOfAttributes, expWidth, 10);
-          break;
-        case 'record':
-          return drawNodeExpandedRect(numberOfAttributes, expWidth);
-          break;
-        default:
-          return drawNodeExpandedRect(numberOfAttributes, expWidth);
-          break;
-      }
-    });
+    d3.select(nodePathShape)
+      .attr('d', function (d) {
+        switch (d.shapetype) {
+          case 'Mrecord':
+            return drawNodeExpandedRoundedRect(numberOfAttributes, expWidth, 10);
+            break;
+          case 'record':
+            return drawNodeExpandedRect(numberOfAttributes, expWidth);
+            break;
+          default:
+            return drawNodeExpandedRect(numberOfAttributes, expWidth);
+            break;
+        }
+      });
+
+    /* TABS START */
+    showAttributes();
+    // ATTRIBUTES
+    console.log(node);
+    d3.select(nodePathShape.parentNode)
+      .classed('tab-1', true)
+      .append('svg')
+      .classed('tab', true)
+      .classed(node.orig_name + 'Tabs', true)
+      .on('click', function () {
+        setTabActive(this);
+        showAttributes();
+      })
+      .attr('x', 4 - expWidth)
+      .attr("y", 5)
+      .append('use')
+      .attr('xlink:href', '#tab-shape')
+      .attr('transform', 'scale(0.55, 0.4)');
+
 
     d3.select(nodePathShape.parentNode)
-    //.append('a')
-      .append('rect')
-    //.attr('xlink:href', 'http://www.sapo.pt', '_blank')
-      .classed('node-git-link', true)
-      .attr('x', 5 - expWidth)
-      .attr('y', '7')
-      .attr('rx', '1')
-      .attr('ry', '1')
-      .attr('width', '10')
-      .attr('height', '10')
-      .style('fill', 'blue')
-      .style('stroke-width', 0.3)
-      .style('stroke', 'darkBlue');
-    //.on('click', clickGitSource(node));
-    //.on('dblclick', dblclickSource(node));
+      .append('text')
+      .attr('class', node.orig_name + 'Tabs')
+      .attr("y", 16)
+      .attr('text-anchor', 'left')
+      .attr('x', 4 - expWidth + 5)
+      .attr('font-size', 8)
+      .attr('font-family', 'sans-serif')
+      .attr('fill', "white")
+      .text(function (d) {
+        return "Attribute";
+      })
 
-    for (i = 0; i < numberOfAttributes; i++) {
+    d3.select(nodePathShape.parentNode)
+      .classed('tab-2', true)
+      .append('svg')
+      .classed('tab', true)
+      .classed(node.orig_name + 'Tabs', true)
+      .on('click', function () {
+        setTabActive(this);
+        showDescription();
+      })
+      .attr('x', -expWidth + 63)
+      .attr("y", 5)
+      .append('use')
+      .attr('xlink:href', '#tab-shape')
+      .attr('transform', 'scale(0.65, 0.4)');
+
+
+    d3.select(nodePathShape.parentNode)
+      .append('text')
+      .attr('class', node.orig_name + 'Tabs')
+      .attr("y", 16)
+      .attr('text-anchor', 'left')
+      .attr('x', -expWidth + 63 + 5)
+      .attr('font-size', 8)
+      .attr('font-family', 'sans-serif')
+      .attr('fill', "white")
+      .text(function (d) {
+        return "Description";
+      })
+
+
+    d3.select(nodePathShape.parentNode)
+      .classed('tab-2', true)
+      .append('svg')
+      .classed('tab', true)
+      .classed(node.orig_name + 'Tabs', true)
+      .on('click', function () {
+        setTabActive(this);
+        showDescription();
+      })
+      .attr('x', -expWidth + 63 + 70)
+      .attr("y", 5)
+      .append('use')
+      .attr('xlink:href', '#tab-shape')
+      .attr('transform', 'scale(0.45, 0.4)');
+
+
+    d3.select(nodePathShape.parentNode)
+      .append('text')
+      .attr('class', node.orig_name + 'Tabs')
+      .attr("y", 16)
+      .attr('text-anchor', 'left')
+      .attr('x', -expWidth + 63 + 70 + 5)
+      .attr('font-size', 8)
+      .attr('font-family', 'sans-serif')
+      .attr('fill', "white")
+      .text(function (d) {
+        return "Methods";
+      })
+
+
+    function setTabActive(d) {
+      console.log("alles zurücksetzen");
+      d3.select(d.parentNode).selectAll('.tab').style("fill", 'url(#tab-2-bg)');
+      d3.select(d).style("fill", 'url(#tab-4-bg)');
+    }
+
+    function removeAttributeText() {
+      d3.select(nodePathShape.parentNode).selectAll("." + node.orig_name + 'AttributeText').remove();
+    }
+
+    function removeDescriptionText() {
+      d3.select(nodePathShape.parentNode).selectAll("." + node.orig_name + 'DescriptionText').remove();
+    }
+
+    /* TABS END */
+
+    function showAttributes() {
+
+      removeDescriptionText();
+
+      maxLengthAttributeTypes = getMaxLengthAttributeTypes(node);
+
+      for (i = 0; i < numberOfAttributes; i++) {
+        d3.select(nodePathShape.parentNode)
+          .append('text')
+          .attr('class', node.orig_name + 'AttributeText')
+          .attr("dy", (i + 1) * 20 + 10)
+          .attr('text-anchor', 'left')
+          .attr('x', 5 - expWidth)
+          .attr('font-size', 8)
+          .attr('font-family', 'sans-serif')
+          .attr('fill', node.fontcolor)
+          .text(function (d) {
+            return d.attributes[i][0];
+          });
+
+        d3.select(nodePathShape.parentNode)
+          .append("text")
+          .attr("class", node.orig_name + "AttributeText")
+          .attr("dy", (i + 1) * 20 + 10)
+          .attr("text-anchor", "right")
+          .attr('fill', function (d) {
+
+            for (var it = 0, l = TYPE_COLORS.length; it < l; it++) {
+              if (d.attributes[i][1] == TYPE_COLORS[it][0]) {
+                return TYPE_COLORS[it][1];
+              }
+            }
+          })
+          .attr("font-size", 8)
+          .attr("font-family", "sans-serif")
+
+          .text(function (d) {
+            return " :: " + d.attributes[i][1];
+          })
+          .attr("x", function (d) {
+            return expWidth - (maxLengthAttributeTypes * 6);
+          });
+
+      }
+    }
+
+
+    function showDescription() {
+
+      removeAttributeText();
+
       d3.select(nodePathShape.parentNode)
         .append('text')
-        .attr('class', node.name + 'AttributeText')
-        .attr("dy", (i + 1) * 20 + 10)
+        .attr('class', node.orig_name + 'DescriptionText')
+        .attr("dy", 30)
         .attr('text-anchor', 'left')
         .attr('x', 5 - expWidth)
         .attr('font-size', 8)
         .attr('font-family', 'sans-serif')
         .attr('fill', node.fontcolor)
-        .text(function(d) {
-          return d.attributes[i][0];
-        });
-
-      d3.select(nodePathShape.parentNode)
-        .append("text")
-        .attr("class", node.name + "AttributeText")
-        .attr("dy", (i + 1) * 20 + 10)
-        .attr("text-anchor", "right")
-        .attr("x", expWidth - 58)
-        .attr("font-size", 8)
-        .attr("font-family", "sans-serif")
-        .attr('fill', function(d) {
-          for (var it = 0, l = TYPE_COLORS.length; it < l; it ++) {
-            if (d.attributes[i][1] == TYPE_COLORS[it][0]) {
-              return TYPE_COLORS[it][1];
-            }
+        .text(function (d) {
+          console.log(d);
+          if (d.description.length > 0) {
+            return d.description;
           }
-        })
-        .text(function(d) {
-          return " :: " + d.attributes[i][1];
+          return "Keine Beschreibung vorhanden";
         });
-    }
-  }
 
-  function appendDataToInfoDiv(numberOfAttributes, node) {
-    var numberOfAttributes = node.attributes.length;
-
-    $("div#model-diagram-info").append("<p style='display: inline-block; padding-right: 5px;'><strong>" + node.name.replace(/_/g,'::') + "</strong>: </p>");
-
-    for (i = 0; i < numberOfAttributes; i++) {
-      if (i == numberOfAttributes - 1) {
-        $("div#model-diagram-info").append("<p style='display: inline-block; padding-right: 5px;'>" + node.attributes[i][0] + "<span style='color: gray;'>:" + node.attributes[i][1] + "</span></p>");
-      } else {
-        $("div#model-diagram-info").append("<p style='display: inline-block; padding-right: 5px;'>" + node.attributes[i][0] + "<span style='color: gray;'>:" + node.attributes[i][1] + "</span>, </p>");
-      }
     }
   }
 
@@ -273,17 +320,35 @@ generate_model_diagram_svg = function(model_diagram_json) {
     var element = d3.select(nodePathShape)[0][0],
       elementPath = element.getAttribute('d');
 
-    return parseFloat(/[0-9]+\sZ/.exec(elementPath)[0].replace(' Z',''));
+    return parseFloat(/[0-9]+\sZ/.exec(elementPath)[0].replace(' Z', ''));
   }
 
   function getMaxLengthAttribute(node) {
+
+    var numberOfAttributes = node.attributes.length,
+      maxNameLength = getMaxLengthAttributeNames(node),
+      maxAttributeLength = getMaxLengthAttributeTypes(node);
+
+    var lengthTogether = maxNameLength + maxAttributeLength;
+
+    if (node.name.length > lengthTogether) {
+      return node.name.length;
+    } else {
+      return lengthTogether;
+    }
+
+  }
+
+  function getMaxLengthAttributeNames(node) {
+
     var numberOfAttributes = node.attributes.length,
       maxLengthAttribute = 0;
 
-    for (i = 0; i < numberOfAttributes; i++){
-      var currentNodeLength = node.attributes[i][0].length + node.attributes[i][1].length;
+    for (i = 0; i < numberOfAttributes; i++) {
 
-      if (currentNodeLength > maxLengthAttribute){
+      var currentNodeLength = node.attributes[i][0].length;
+
+      if (currentNodeLength > maxLengthAttribute) {
         maxLengthAttribute = currentNodeLength;
       }
     }
@@ -295,93 +360,217 @@ generate_model_diagram_svg = function(model_diagram_json) {
     }
   }
 
+  function getMaxLengthAttributeTypes(node) {
+
+    var numberOfAttributes = node.attributes.length,
+      maxLengthAttribute = 0;
+
+
+    for (i = 0; i < numberOfAttributes; i++) {
+
+      var currentNodeLength = node.attributes[i][1].length;
+
+      if (currentNodeLength > maxLengthAttribute) {
+        maxLengthAttribute = currentNodeLength;
+      }
+    }
+
+
+    if (node.name.length > maxLengthAttribute) {
+      return node.name.length;
+    } else {
+      return maxLengthAttribute;
+    }
+  }
+
   function minimizeNode(node, nodePathShape) {
     d3.select(nodePathShape).attr('d', node.shape);
     $("div#model-diagram-info").empty().append("<p style='display: inline-block; padding-right: 5px;' class='text-muted'>Model information</p>");
-    $('text.' + node.name + "AttributeText").remove();
+    $('text.' + node.orig_name + "AttributeText").remove();
+    $('text.' + node.orig_name + "DescriptionText").remove();
+    $('.' + node.orig_name + 'Tabs').remove();
     $("rect.node-git-link").remove();
-    $("rect." + node.name + "AttributeBackground").remove();
+    $("rect." + node.orig_name + "AttributeBackground").remove();
+
+    node.expanded = false;
   }
 
   function nodeDoubleClicked(node) {
     // node refers node object
     // this refers to node path shape
+    if (d3.event.defaultPrevented) return; // dragged
 
     if (node.attributes !== null) {
-      var numberOfAttributes = node.attributes.length
-      var maxLengthAttribute = getMaxLengthAttribute(node)
+
+      var numberOfAttributes = node.attributes.length;
+      var maxLengthAttribute = getMaxLengthAttribute(node);
 
       $("div#model-diagram-info").empty();
 
-      if ($("text." + node.name + "AttributeText").length < 1) {
+      node.expanded = true;
+
+      if ($("text." + node.orig_name + "AttributeText").length < 1) {
+        console.log("ausklappen");
+
         var n = $(this).parent();
         n.parent().append(n.detach());
 
         drawEntireNodeExpanded(this, maxLengthAttribute, node);
-        appendDataToInfoDiv(numberOfAttributes, node);
 
         shapeHeight = getShapeHeight(this);
 
-        force.charge(function(d){
-          nodeCharge = /([0-9]+\sZ)/.exec(d.shape)
-
-          if (d == node) {
-            return (-200 * shapeHeight) - 4000;
-          } else {
-            return -5000;
-          }
-        });
-
-        force.start();
-
       } else {
-        force.charge(function(d){
-          return -5000;
-        });
 
-        force.start();
+        console.log("einklappen");
 
         minimizeNode(node, this);
       }
     } else {
-      $("div#model-diagram-info").empty().append("<p style='display: inline-block; padding-right: 5px;'>No attributes for " + node.name.replace(/_/g,'::') + "</p>");
+      $("div#model-diagram-info").empty().append("<p style='display: inline-block; padding-right: 5px;'>No attributes for " + node.orig_name + "</p>");
     }
   }
 
-  var force =
-    d3.layout.force()
-    .nodes(d3.values(nodes))
+  function tickEnd() {
+    savedgraph = nodes;
+  }
+
+  zoom = d3.behavior.zoom()
+    .scaleExtent([0, 10])
+    .on("zoom", zoomed);
+  // Compute the distinct nodes from the links.
+  links = graph.links;
+
+  nodes = {};
+
+  graph.nodes.forEach(function (single_node) {
+
+    var nodeShape = "";
+    var shapeType = "";
+    var nodeNameLength = single_node.name.length;
+
+    var temp_shape = "";
+
+    if (!single_node.shapetype && single_node.shape) {
+      // First load
+      temp_shape = single_node.shape;
+    } else if (single_node.shape && single_node.shapetype) {
+      temp_shape = single_node.shapetype;
+    }
+
+    if (temp_shape == "Mrecord") {
+      nodeShape = drawNodeElipse(nodeNameLength);
+      shapeType = "Mrecord";
+    } else if (temp_shape == "record") {
+      nodeShape = drawNodeRect(nodeNameLength);
+      shapeType = "record";
+    } else {
+      nodeShape = drawNodeRect(nodeNameLength);
+      shapeType = "other";
+    }
+
+    // SET DEFAULT VALUE
+    var expanded;
+    if (single_node.expanded) {
+      expanded = single_node.expanded;
+    } else {
+      expanded = false;
+    }
+
+    nodes[single_node.name] = {
+      name: single_node.name,
+      orig_name: single_node.orig_name,
+      description: single_node.description,
+      attributes: single_node.attributes,
+      expanded: expanded,
+      fillcolor: single_node.fillcolor,
+      fontcolor: single_node.fontcolor,
+      shape: nodeShape,
+      shapetype: shapeType
+      // new attributes
+    };
+
+    if (single_node.px && single_node.py && single_node.x && single_node.y) {
+      // If position exists
+      nodes[single_node.name].px = single_node.px;
+      nodes[single_node.name].py = single_node.py;
+
+      nodes[single_node.name].x = single_node.x;
+      nodes[single_node.name].y = single_node.y;
+
+      nodes[single_node.name].fixed = single_node.fixed;
+    }
+
+    if (single_node.attributes == single_node.fillcolor == single_node.fontcolor == null) {
+      nodes[single_node.name].fillcolor = "#FFF";
+      nodes[single_node.name].fontcolor = "#000";
+    } else if (single_node.fillcolor == null) {
+      nodes[single_node.name].fillcolor = "#DDD";
+      nodes[single_node.name].fontcolor = "#000";
+    }
+  });
+
+  links.forEach(function (link) {
+    link.source = nodes[link.source] ||
+      (nodes[link.source] = {
+        name: link.source,
+        fillcolor: "#FFF",
+        fontcolor: "#000",
+        attributes: null,
+        shape: drawNodeRect(link.source.length)
+      });
+    link.target = nodes[link.target] ||
+      (nodes[link.target] = {
+        name: link.target,
+        fillcolor: "#FFF",
+        fontcolor: "#000",
+        attributes: null,
+        shape: drawNodeRect(link.target.length)
+      });
+  });
+
+  force.nodes(d3.values(nodes))
     .links(links)
-    .size([width, height])
-    .charge(charge)
-    .gravity(gravity)
-    .friction(friction)
-    .linkDistance(linkDistance)
-    .linkStrength(linkStrength)
-    .chargeDistance(chargeDistance)
-    .on("tick", tick)
+    .on('tick', tick)
+    .on('end', tickEnd)
     .start();
+  //.chargeDistance(chargeDistance)
+
+  var output = [];
+
+  for (var type in nodes) {
+
+    if (isNode(nodes[type])) {
+      output.push(nodes[type]);
+    }
+  }
+
+  nodes_temp = output;
+
+  function isNode(n) {
+    var result = false;
+
+    model_diagram_json_orig["models"].nodes.forEach((node) => {
+      if (n.name == node.name) {
+        result = true;
+      }
+    })
+
+    return result;
+  }
 
   function dragstarted(d) {
     d3.event.sourceEvent.stopPropagation();
-    d3.select(this).classed("dragging", true);
-  }
-
-  function dragged(d) {
-    d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
-  }
-
-  function dragended(d) {
-    d3.select(this).classed("dragging", false);
+    d3.selectAll('.node').classed("fixed", d.fixed = true);
   }
 
   var drag = force.drag()
-    .origin(function(d) { return d; })
-    .on("dragstart", dragstarted)
-    .on("drag", dragged)
-    .on("dragend", dragended);
+    .origin(function (d) {
+      return d;
+    })
+    .on("dragstart", dragstarted);
 
-  var svg =
+  d3.select("div#svg-model-diagram div").remove();
+  svg =
     d3.select("div#svg-model-diagram")
     .append("div")
     .classed("svg-container", true)
@@ -390,24 +579,20 @@ generate_model_diagram_svg = function(model_diagram_json) {
     .on("dblclick.zoom", null)
     .attr("preserveAspectRatio", "xMinYMin meet")
     .attr("viewBox", "0 0 600 400")
-  //class to make it responsive
+    //class to make it responsive
     .classed("svg-content-responsive", true);
 
   var viz =
     svg.append('g')
     .attr('id', 'viz');
 
-  function zoomed() {
-    viz.attr("transform",
-      "translate(" + d3.event.translate + ")" + "scale(" + d3.event.scale + ")");
-  };
 
   function helpToggle() {
     $('svg > image.help-image').toggleClass('no-opacity');
     $('svg > g > rect.help-btn').toggleClass('inactive-help-btn');
   }
 
-  path = '/gc-help.png'
+  path = '/assets/gc-help.png'
   var gcHelpImg = svg.selectAll('image').data([0]);
   gcHelpImg.enter()
     .append('svg:image')
@@ -553,21 +738,6 @@ generate_model_diagram_svg = function(model_diagram_json) {
     .attr("d", drawTripleArrow)
     .attr("fill", "#1c7a9b");
 
-  // build the crow
-  //  viz.append("viz:defs")
-  //    .selectAll("marker")
-  //      .data(["crow"])
-  //    .enter().append("viz:marker")
-  //      .attr("id", String)
-  //      .attr("viewBox", "0 -5 10 10")
-  //      .attr("refX", 20)
-  //      .attr("refY", 0)
-  //      .attr("markerWidth", 6)
-  //      .attr("markerHeight", 6)
-  //      .attr("orient", "auto")
-  //    .append("viz:path")
-  //      .attr("d", drawCrow);
-
   // build the light gray dot
   viz.append("viz:defs")
     .selectAll("marker")
@@ -660,13 +830,19 @@ generate_model_diagram_svg = function(model_diagram_json) {
     .enter()
     .append("viz:path")
     .attr("class", "link")
-    .attr('id', function(d, i){
+    .attr('id', function (d, i) {
       return "linkPathId" + i;
     })
-    .style("stroke", function(d) { return d.color; })
+    .style("stroke", function (d) {
+      return d.color;
+    })
     .style("stroke-width", 2)
-    .attr("marker-start", function(d) { return "url(#" + d.arrowtail + ")"; })
-    .attr("marker-end", function(d) { return "url(#" + d.arrowhead + ")"; })
+    .attr("marker-start", function (d) {
+      return "url(#" + d.arrowtail + ")";
+    })
+    .attr("marker-end", function (d) {
+      return "url(#" + d.arrowhead + ")";
+    })
     .on("dblclick", linkDoubleClicked);
 
   var linktext =
@@ -681,17 +857,20 @@ generate_model_diagram_svg = function(model_diagram_json) {
     .style("font-size", "6px")
     .attr("font-family", "sans-serif")
     .attr("dy", -5)
+    .attr("dx", 25)
     .attr("text-anchor", "start")
-    .style("fill","#000")
+    .style("fill", "#000")
     .append("textPath")
-    .attr("id", function(d, i){
+    .attr("id", function (d, i) {
       return "textlinkPathId" + i;
     })
-    .attr("xlink:href", function(d, i) { return "#linkPathId" + i;})
+    .attr("xlink:href", function (d, i) {
+      return "#linkPathId" + i;
+    })
     .style("display", "none")
-    .text(function(d) {
+    .text(function (d) {
       linkText = d.source.name + " # " + d.target.name
-      return linkText.replace(/_/g,'::');
+      return linkText;
     });
 
   // define the nodes
@@ -700,15 +879,24 @@ generate_model_diagram_svg = function(model_diagram_json) {
     .data(force.nodes())
     .enter().append("g")
     .attr("class", "node")
-    .call(force.drag);
-
+    .call(
+      force.drag().origin(function (d) {
+        return d;
+      })
+    );
   // add the nodes
   viz_nodes.append("path")
-    .attr("d", function(d) { return d.shape; })
-    .attr("fill", function(d){
+    .attr("d", function (d) {
+      return d.shape;
+    })
+    .attr("fill", function (d) {
       return d.fillcolor;
     })
-    .on("dblclick", nodeDoubleClicked);
+    .on("click", nodeDoubleClicked)
+    .on('contextmenu', function (d) {
+      d3.event.preventDefault();
+      //d3.select(this).classed("fixed", d.fixed = false);
+    });
 
   // add the text
   viz_nodes.append("text")
@@ -716,58 +904,107 @@ generate_model_diagram_svg = function(model_diagram_json) {
     .attr("dy", ".35em")
     .style("font-size", 8)
     .attr("font-family", "sans-serif")
-    .attr("fill", function(d) { return d.fontcolor; })
-    .text(function(d) { return d.name.replace(/_/g,'::'); });
+    .attr("fill", function (d) {
+      return d.fontcolor;
+    })
+    .text(function (d) {
+      //console.log(d);
+      return d.name;
+    });
 
   function tick() {
-    path.attr("d", function(d) {
-      var dx         = d.target.x - d.source.x,
-        dy           = d.target.y - d.source.y,
-        dr           = 0,
-        slopeFactor  = 0.5 / ((d.source.y - d.target.y) / (d.source.x - d.target.x)),
-        finalSourceX = 0,
-        finalTargetX = 0,
-        moveX        = 0;
+    path.attr("d", function (d) {
+      var dr = 0;
+      var heightSource = calculateHeight(d.source);
+      var heightTarget = calculateHeight(d.target);
+      var widthSource = calculateWidth(d.source);
+      var widthTarget = calculateWidth(d.target);
 
-      if (slopeFactor >= 1) {
-        slopeFactor = 1;
-      } else if (slopeFactor < -1) {
-        slopeFactor = -1;
-      }
 
-      moveSourceX = (d.source.name.length - 1) * (slopeFactor * 2.7)
-      moveTargetX = (d.target.name.length - 1) * (slopeFactor * 2.7)
+      var sourceCenter = {};
+      sourceCenter.y = d.source.y + (heightSource / 2);
+      sourceCenter.x = d.source.x;
 
-      if (d.source.y >= d.target.y) {
-        finalSourceX = d.source.x - moveSourceX;
-        finalTargetX = d.target.x + moveTargetX;
-      } else {
-        finalSourceX = d.source.x + moveSourceX;
-        finalTargetX = d.target.x - moveTargetX;
-      }
+      var targetCenter = {};
+      targetCenter.y = d.target.y + (heightTarget / 2);
+      targetCenter.x = d.target.x;
 
-      if (isNaN(finalSourceX)) {
-        finalSourceX = d.source.x
-      }
+      var newSource = calculateLine(sourceCenter, targetCenter, widthSource, heightSource);
 
-      if (isNaN(finalTargetX)) {
-        finalTargetX = d.target.x
-      }
+      var newTarget = calculateLine(targetCenter, sourceCenter, widthTarget, heightTarget);
 
       return "M " +
-        finalSourceX + "," +
-        d.source.y + "A" +
+        newSource.x + "," +
+        (newSource.y - 5) + "A" +
         dr + "," + dr + " 0 0,1 " +
-        finalTargetX + "," +
-        d.target.y;
+        newTarget.x + "," +
+        (newTarget.y - 5);
     });
-
-    viz_nodes.attr("transform", function(d) {
+    viz_nodes.attr("transform", function (d) {
       return "translate(" + d.x + "," + d.y + ")";
     });
+
+    viz_nodes.attr("transform", function (d) {
+      return "translate(" + d.x + "," + d.y + ")";
+    });
+
   }
+
+  function calculateHeight(node) {
+    if (node.expanded) {
+      return (node.attributes.length * 21 + 20);
+    } else {
+      return 10;
+    }
+  }
+
+  function calculateWidth(node) {
+    if (node.expanded) {
+
+      if (node.attributes) {
+        var maxLengthAttributeSource = getMaxLengthAttribute(node);
+        return expandedWidth(maxLengthAttributeSource) + 110;
+      } else {
+        return expandedWidth(node.name.length);
+      }
+    } else {
+      return expandedWidth(node.name.length) + 30;
+    }
+  }
+
+  function calculateLine(source, target, width, height) {
+    // NEEDS CENTER OF SOURCE AND TARGET
+    halfWidth = width / 2;
+    halfHeight = height / 2;
+
+    if (source.x > target.x) {
+      halfWidth *= -1
+    }
+
+    if (source.y > target.y) {
+      halfHeight *= -1
+    }
+
+    var distance_x = target.x - source.x;
+    var distance_y = target.y - source.y;
+
+    var fxd = distance_x * halfHeight / distance_y;
+    var fyd = distance_y * halfWidth / distance_x;
+
+    var x = source.x + fxd;
+    var y = source.y + fyd;
+
+    var result = {}
+    if (Math.abs(fxd) < Math.abs(halfWidth)) {
+      result.x = x;
+      result.y = source.y + halfHeight;
+      return result;
+    } else {
+      result.x = source.x + halfWidth;
+      result.y = y;
+      return result;
+    }
+  }
+
 };
 
-if (typeof model_diagram_json !== "undefined") {
-  generate_model_diagram_svg(model_diagram_json);
-}
