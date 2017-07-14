@@ -15,8 +15,8 @@ class VMConnection
     DOTOJSON_EXPORT_PATH +
     ";"
 
-  SYSTEM_DEPENDENCIES =
-    'export PATH="$PATH:$HOME/.rvm/bin"; source /Users/Markus.Springer/.rvm/scripts/rvm'.freeze
+  SYSTEM_DEPENDENCIES = ('export PATH="$PATH:$HOME/.rvm/bin"; source '+Rails.application.secrets.rvm_path).freeze
+
 
   def initialize(report)
     @report = report
