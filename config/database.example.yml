@@ -9,12 +9,12 @@ default: &default
 
 development:
   <<: *default
-  database: gorgeous-code-alpha_development
+  database: gorgeous-code_development
 
 test:
   <<: *default
-  database: gorgeous-code-alpha_test
+  database: gorgeous-code_test
 
 production:
   <<: *default
-  database: gorgeous-code-alpha_production
+  database: gorgeous-code_production

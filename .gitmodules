@@ -1,0 +1,3 @@
+[submodule "vendor/railroady"]
+	path = vendor/railroady
+	url = git@github.com:regedor/railroady.git
