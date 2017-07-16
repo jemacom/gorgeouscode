@@ -1,9 +1,86 @@
-@import bootstrap
 @import formtastic
 @import font-awesome
 @import svg-model-diagram
 @import svg-code-coverage-diagram
 @import reports
+
+body
+  display: flex
+  min-height: 100vh
+  flex-direction: column
+
+main
+  flex: 1 0 auto
+
+nav
+  background-color: rgb(61,61,61)
+
+.btn
+  background-color: rgb(35,107,232)
+
+.btn:hover
+  background-color: rgb(35,207,232)
+
+.page-footer
+  background-color: rgb(61,61,61)
+
+.alert
+  width: 100%
+  background: #F75D59
+  border: 2px solid red  
+  color: white
+  margin: 20px 0
+  padding: 15px
+
+  a
+    color: white
+    text-decoration: underline
+
+
+nav
+  width: 100%
+
+
+
+.nav-wrapper
+  width: 100%
+  position: relative
+  right: 45px
+
+header, main, footer
+  padding-left: 300px
+
+@media only screen and (min-width: 993px)
+.container
+  width: 85%
+  
+.container-main
+  margin-top: 60px
+
+ul.side-nav.fixed li
+  line-height: 44px
+
+  strong
+    padding-left: 30px
+
+
+.side-nav li.active
+  background-color: rgba(0,0,0,0.05)
+
+ul.side-nav.fixed li a
+  font-size: 13px
+  line-height: 44px
+  height: 44px
+  padding: 0 30px
+
+.side-nav li>a>i
+  float: none
+
+
+#logo-container
+  background: white
+  text-align:center
+  height: auto
 
 .overflow-auto
   overflow: auto
@@ -62,7 +139,7 @@
 .project-description
   min-height: 50px
 
-.red
+.d
   color: #c44
 
 html body
@@ -74,14 +151,10 @@ html, body
 .wrapper
   min-height: 100%
   height: auto
-  margin: 0 auto -40px
   padding: 0 0 40px
 
 .wrapper > .container
   padding-top: 60px
-
-ul.project-list-group li:hover
-  background-color: #F4F4F4
 
 h4 span.bigger-text
   font-size: 30px

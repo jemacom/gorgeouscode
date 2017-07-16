@@ -355,7 +355,6 @@ PLATFORMS
 
 DEPENDENCIES
   annotate
-  bootstrap-sass (~> 3.3)
   byebug
   capybara (~> 2.5)
   capybara-email (~> 2.4.0)
