@@ -26,6 +26,8 @@ gem "font-awesome-rails", "~> 4.5", ">= 4.5.0.1"
 
 group :development, :test do
   gem "byebug"
+  gem "colorize"
+  gem "annotate"
   gem "capybara", "~> 2.5"
   gem "capybara-email", "~> 2.4.0"
   gem "shoulda", "~> 3.5"

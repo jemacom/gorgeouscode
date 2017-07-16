@@ -8,14 +8,12 @@ class VMConnection
   DOTOJSON_PATH = Rails.application.secrets.dotojson_path
   DOTOJSON_EXPORT_FILE = "models_dot".freeze
   DOTOJSON_EXPORT_PATH = DOTOJSON_PATH + "/" + DOTOJSON_EXPORT_FILE
-
   RAILROADY_TO_DOT_COMMAND =
-    RAILROADY_PATH +
+    Shellwords.escape(RAILROADY_PATH) +
     " -M --transitive --show-belongs_to --all-columns > " +
-    DOTOJSON_EXPORT_PATH +
+    Shellwords.escape(DOTOJSON_EXPORT_PATH) +
     ";"
-
-  SYSTEM_DEPENDENCIES = ('export PATH="$PATH:$HOME/.rvm/bin"; source '+Rails.application.secrets.rvm_path).freeze
+  SYSTEM_DEPENDENCIES = ('export PATH="$PATH:$HOME/.rvm/bin"; source '+ Rails.application.secrets.rvm_path).freeze
 
 
   def initialize(report)
@@ -50,13 +48,10 @@ class VMConnection
   end
 
   def disable_spring_in_rails_app
-    puts "\n\n\n ----------------- Disable Spring in Rails app \n\n\n"
     execute_in_rails_app(["bin/spring binstub --remove --all"])
   end
 
   def get_simplecov_last_percent
-    puts "\n\n\n ----------------- RUN TESTS \n\n\n"
-
     execute_in_rails_app(["RAILS_ENV=test bin/rake db:migrate"])
     # TODO: add desired test framework to .gc.yml
     # execute_in_rails_app(["RAILS_ENV=test bundle exec rake test"])
@@ -74,22 +69,24 @@ class VMConnection
   end
 
   def generate_dot
+    Log.info "GC::VMConnection#generate_dot Started"
     execute_in_rails_app([RAILROADY_TO_DOT_COMMAND])
     File.exist?(DOTOJSON_EXPORT_PATH) ? true : false
   end
 
   def generate_json
+    Log.info "GC::VMConnection#generate_json Started"
     Bundler.with_clean_env do
       system "
-        cd #{DOTOJSON_PATH};
-        ruby dotojson.rb #{DOTOJSON_EXPORT_FILE};
-        rm #{DOTOJSON_EXPORT_FILE};
-        mkdir -p #{tmp_fullpath};
-        mv #{DOTOJSON_EXPORT_FILE}.json #{tmp_fullpath}/#{@report.project.github_owner}_#{@report.project.github_name}_#{@report.commit_hash}.json
+        cd #{Shellwords.escape(DOTOJSON_PATH)};
+        ruby dotojson.rb '#{Shellwords.escape(DOTOJSON_EXPORT_FILE)}';
+        rm #{Shellwords.escape(DOTOJSON_EXPORT_FILE)};
+        mkdir -p #{Shellwords.escape(tmp_fullpath)};
+        mv #{Shellwords.escape(DOTOJSON_EXPORT_FILE)}.json #{Shellwords.escape(tmp_fullpath)}/#{@report.project.github_owner}_#{@report.project.github_name}_#{@report.commit_hash}.json
       "
     end
 
-    File.exist?(get_json_file_path(@report)) ? true : false
+    File.exist?(Shellwords.escape(get_json_file_path(@report))) ? true : false
   end
 
   def get_gc_config(files)
@@ -113,7 +110,7 @@ class VMConnection
   def prepare_gemset
     raise unless @report.ruby_version
     input = [SYSTEM_DEPENDENCIES]
-    input << "cd #{rails_fullpath}"
+    input << "cd '#{rails_fullpath}'"
     input << "rvm install #{@report.ruby_version}"
     input << "rvm use #{gemset} --create"
     input << "gem install bundle --no-document --no-ri"
@@ -125,7 +122,7 @@ class VMConnection
 
   def execute_in_rails_app(commands)
     input = [SYSTEM_DEPENDENCIES]
-    input << "cd #{rails_fullpath}"
+    input << "cd '#{rails_fullpath}'"
     input << "rvm use #{gemset}" if gemset
     input += commands
 
@@ -134,7 +131,7 @@ class VMConnection
 
   def execute_in_repository(commands)
     input = [SYSTEM_DEPENDENCIES]
-    input << "cd #{repository_fullpath}"
+    input << "cd '#{repository_fullpath}'"
     input += commands
 
     Bundler.with_clean_env { bash(input.join(";")) }
@@ -159,17 +156,20 @@ class VMConnection
   end
 
   def read_json_data
+    Log.info "GC::VMConnection#read_json_data Started"
     path = get_json_file_path(@report)
     File.exist?(path) ? File.read(path) : false
   end
 
   def read_files_in_folder(folder)
+    Log.info "GC::VMConnection#read_files_in_folder(#{folder}) Started"
     result = []
-    
-    Dir[home_fullpath + '/' +  folder].each do |filepath|
+
+    Dir[Shellwords.escape(home_fullpath) + '/' +  folder].each do |filepath|
       result.push(filepath.remove(home_fullpath + "/"))
     end
 
+    Log.info "GC::VMConnection#read_files_in_folder#{folder} Ending"
     result
   end
 
@@ -209,9 +209,9 @@ class VMConnection
   def clone_repository_and_fetch_commit
     FileUtils.mkdir_p(home_fullpath)
     system "
-      cd #{home_fullpath};
+      cd '#{home_fullpath}';
       #{get_clone_command(@project)};
-      mv #{@project.github_name} repository;
+      mv '#{@project.github_name}' repository;
       #{get_fetch_command(@project)};
     "
   end

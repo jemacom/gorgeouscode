@@ -1,6 +1,0 @@
-development:
-  adapter: postgresql
-  database: custom_db_name
-  username: postgres
-
-

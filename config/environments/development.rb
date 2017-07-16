@@ -44,4 +44,7 @@ Rails.application.configure do
 
   config.active_job.queue_adapter = :inline
   # config.active_job.queue_adapter = :delayed_job
+
+  # For printing the `Rails.logger.debug`
+  config.logger = Logger.new(STDOUT)
 end

@@ -15,51 +15,56 @@ class StartReport
   # Creates new VMConnection, prepares repository and gemset configuration
   # and queues analysers with ActiveJob.
   def call
+    Log.info "GC:StartReport#call Started for",
+      "project(id:#{@project.id}): #{@project.github_owner}/#{@project.github_name}"
     @project.has_last_report_analyses = false
-    @project.save
+    @project.save!
 
-    # clone repository
+    Log.info "GC:StartReport#call Cloning/preparing repository"
     @report.started_at = Time.zone.now
     connection = VMConnection.new(@report)
     connection.prepare_repository
     @report.rails_app_path = get_rails_path(connection)
-    @report.save
+    @report.save!
+    Log.info "GC:StartReport#call Report(id:#{@report.id}) created",
+      "report branch: #{@report.branch}",
+      "commit_hash: #{@report.commit_hash}",
+      "queued_at: #{@report.queued_at}"
 
-    # setup rails app
     if @report.rails_app_present?
-      @report.gc_config = connection.get_gc_config([".gc.yml"])
-      @report.save
+      Log.info "GC:StartReport#call Found rails app. Now updating Report(id:#{@report.id}).gc_config"
+      copy_overrides_and_update_gc_config(@report, connection)
 
-      if copy_project_override_folder(@report, connection) ||
-         @report.gc_config_valid?
-
+      if @report.gc_config_valid?
         @report.ruby_version = connection.search_ruby_version
-        @report.save
+        @report.save!
+        Log.info "GC:StartReport#call Updated Report(id:#{@report.id}).ruby_version = #{@report.ruby_version}"
 
         # setup do rvm
-        # new connection to update @report
+        # new connection to updated @report
         connection = VMConnection.new(@report)
-        # got problems with rake tasks folder
-        connection.delete_rake_tasks_folder
+        connection.delete_rake_tasks_folder # got problems with rake tasks folder
         connection.prepare_gemset
+        connection.disable_spring_in_rails_app # Disable Spring
+        Log.info "GC:StartReport#call Finished Ruby Version and Gemset setup"
 
-        # Disable Spring
-        connection.disable_spring_in_rails_app
-
-        # database and app .yml.example to .yml, etc
-        Rails.logger.debug "\n\n ----- Executing .gc.yml before script... ----- \n\n"
+        Log.info "GC:StartReport#call Will execute .gc.yml before script",
+          "creating databases, copy example.yml, etc "
         connection.execute_in_rails_app(@report.gc_config_to_yml["before_script"])
-        Rails.logger.debug "\n\n ----- Finished executing .gc.yml before script! ----- \n\n"
         @report.finished_setup_at = Time.zone.now
-        @report.save
+        @report.save!
 
-        # queue analyses jobs, delete gemset and repository
+        Log.info "GC:StartReport#call Will queue PerformAnalysesJob",
+         "which queues analyses jobs, delete gemset and repository",
+         "in development mode will run right way"
         PerformAnalysesJob.perform_later(@report)
       else
+        Log.error "GC:StartReport#call No rails app found. Will remove github hook and raise."
         @project.remove_github_hook
-        raise "The current gc_config is invalid and there's no backup file or report project override folder."
+        raise "The current gc_config/override is invalid."
       end
     else
+      Log.error "GC:StartReport#call No rails app found. Will remove github hook and raise."
       @project.remove_github_hook
       raise "Couldn't find a Rails application."
     end
@@ -67,16 +72,14 @@ class StartReport
 
   private
 
-  def copy_project_override_folder(report, connection)
+  def copy_overrides_and_update_gc_config(report, connection)
     path = overrides_path(report)
     if File.exist?(path)
+      Log.info "GC:StartReport#copy_overrides_and_update_gc_config will copy overrides"
       FileUtils.cp_r(File.join(path, "."), connection.rails_fullpath, remove_destination: true)
-      report.gc_config = connection.get_gc_config([".gc.yml"])
-      report.save
-      true
-    else
-      false
     end
+    report.gc_config = connection.get_gc_config([".gc.yml"])
+    report.save!
   end
 
   def overrides_path(report)
