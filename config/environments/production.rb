@@ -1,11 +1,11 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
-  config.action_mailer.default_url_options = { host: "gorgeouscode-alpha.herokuapp.com" }
+  config.action_mailer.default_url_options = { host: "gorgeouscode.com" }
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
     address:              "smtp.gmail.com",
     port:                 587,
-    domain:               "gorgeouscode-alpha.herokuapp.com",
+    domain:               "gorgeouscode.com",
     user_name:            ENV["EMAIL"],
     password:             ENV["PASSWORD"],
     authentication:       "plain",
@@ -36,7 +36,7 @@ Rails.application.configure do
   config.serve_static_files = ENV["RAILS_SERVE_STATIC_FILES"].present?
 
   # Compress JavaScripts and CSS.
-  config.assets.js_compressor = :uglifier
+  # config.assets.js_compressor = :uglifier # Comment because gave problems in prod
   # config.assets.css_compressor = :sass
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
