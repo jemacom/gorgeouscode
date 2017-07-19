@@ -1,4 +1,4 @@
-FROM docker-dev.freeletics.com/rails-baseimage:rc-2017-07-17_14-26
+FROM docker-dev.freeletics.com/rails-baseimage:rc-2017-07-19_13-39
 
 # install rvm
 ENV RVM_INSTALLER https://raw.githubusercontent.com/rvm/rvm/b78c7b04428d2f91fffc17d83f3c1323248a38fc/binscripts/rvm-installer
