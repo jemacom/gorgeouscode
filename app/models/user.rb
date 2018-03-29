@@ -18,18 +18,15 @@ class User < ActiveRecord::Base
     self.github_token = auth.credentials.token
   end
 
-  def github_repository_access?(github_name)
+  def github_repository_access?(repository_name)
     return false unless github_token
+
     client = Octokit::Client.new(access_token: github_token)
-    return true if github_name_exists_in_repositories?(github_name, client.repositories)
+    return true if client.repository?(repository_name)
+
     last_response = client.last_response
 
-    while last_response.rels[:next].present?
-      last_response_repos = last_response.rels[:next].get.data
-      return true if github_name_exists_in_repositories?(github_name, last_response_repos)
-    end
-
-    false
+    return true if last_response.data && last_reponse.data.name.eql?(repository_name)
   end
 
   def github_repositories
@@ -45,11 +42,4 @@ class User < ActiveRecord::Base
 
     repositories.sort_by(&:name)
   end
-
-  private
-
-  def github_name_exists_in_repositories?(github_name, repositories)
-    return true if repositories.any? { |repo| repo.name.eql?(github_name) }
-  end
-
 end

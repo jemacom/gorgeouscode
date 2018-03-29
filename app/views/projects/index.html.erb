@@ -4,7 +4,5 @@
 </div>
 <%= render "searched_projects", searched_projects: @searched_projects %>
 <%=
-  render "project_list",
-    existing_projects: @existing_projects,
-    missing_projects: @missing_projects
+  render "project_list", existing_projects: @existing_projects, missing_projects: @missing_projects
 %>

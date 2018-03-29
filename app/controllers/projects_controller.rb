@@ -74,45 +74,32 @@ class ProjectsController < ApplicationController
     @missing_projects = []
 
     user_repositories = current_user ? current_user.github_repositories : false
-    update_index_instance_variables(get_repositories_info(user_repositories)) if user_repositories
-  end
 
-  def update_index_instance_variables(repositories_info)
-    repositories_info.each do |info|
-      info_result =
-        get_info_result(info[:github_name], info[:github_owner], info[:github_private], info[:svn_url])
-      if info_result.is_a?(ActiveRecord::Base)
-        @existing_projects << info_result
-      else
-        @missing_projects << info_result
+    return unless user_repositories
+
+    repositories_info =
+      user_repositories.map do |repository|
+        {
+          repository_name: repository.owner.login + "/" + repository.name,
+          github_name: repository.name,
+          github_owner: repository.owner.login,
+          github_private: repository.private,
+          svn_url: repository.svn_url
+        }
       end
-    end
-  end
 
-  def get_repositories_info(user_repositories)
-    user_repositories.map do |repository|
-      {
-        github_name: repository.name,
-        github_owner: repository.owner.login,
-        github_private: repository.private,
-        svn_url: repository.svn_url
-      }
-    end
-  end
+    @existing_projects =
+      Project.where(
+        github_name: repositories_info.map { |info| info[:github_name] },
+        github_owner: repositories_info.map { |info| info[:github_owner] }
+      )
 
-  def get_info_result(github_name, github_owner, github_private, svn_url)
-    existing_project = Project.where(github_name: github_name, github_owner: github_owner)
+    existing_projects_repository_names = @existing_projects.map { |p| p.repository_name }
 
-    if existing_project.present?
-      existing_project.first
-    else
-      {
-        github_name: github_name,
-        github_owner: github_owner,
-        github_private: github_private,
-        svn_url: svn_url
-      }
-    end
+    @missing_projects =
+      repositories_info.reject do |repo|
+        existing_projects_repository_names.include?(repo[:repository_name])
+      end
   end
 
   def set_new_project

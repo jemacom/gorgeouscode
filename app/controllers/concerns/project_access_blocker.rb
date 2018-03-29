@@ -15,6 +15,6 @@ module ProjectAccessBlocker
   def logged_in_private_without_access(project, current_user)
     current_user &&
       project.github_private &&
-      !current_user.github_repository_access?(project.github_name)
+      !current_user.github_repository_access?(project.repository_name)
   end
 end
