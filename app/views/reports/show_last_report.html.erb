@@ -1,4 +1,4 @@
-<% if @project.has_last_report_analyses %>
+<% if @project.has_last_report_analyses && @last_report %>
   <%= render "last_report", project: @project, last_report: @last_report %>
 <% else %>
   <div class="alert alert-warning">

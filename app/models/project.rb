@@ -36,7 +36,7 @@ class Project < ActiveRecord::Base
       .order("github_name")
       .reject do |project|
         project.github_private &&
-          !current_user.github_repository_access?(project.github_name)
+          !current_user.github_repository_access?(project.repository_name)
       end
   end
 
@@ -54,6 +54,10 @@ class Project < ActiveRecord::Base
       .public_repositories
       .order("created_at DESC")
       .limit(n)
+  end
+
+  def repository_name
+    "#{github_owner}/#{github_name}"
   end
 
   # Creates Github webhook for the project
@@ -156,9 +160,5 @@ class Project < ActiveRecord::Base
         }
       }
     end.compact
-  end
-
-  def repository_name
-    "#{github_owner}/#{github_name}"
   end
 end
