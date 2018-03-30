@@ -1,4 +1,6 @@
-var model_diagram_json_orig = prepareData(model_diagram_json);
+if (typeof model_diagram_json !== "undefined") {
+  var model_diagram_json_orig = prepareData(model_diagram_json);
+}
 
 function prepareData(data) {
   data["models"].nodes.forEach((node) => {
@@ -1007,4 +1009,3 @@ function draw(graph) {
   }
 
 };
-

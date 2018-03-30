@@ -1,10 +1,25 @@
 <% if searched_projects.present? %>
-  <div class="well">
-    <h4 class='text-primary'>We've <span class='bigger-text'>found <%= pluralize(searched_projects.count, 'match') %></span> for your search.</h4>
-    <ul>
+
+<div class="row">
+  <div class="col s12">
+
+    <div class="collection with-header">
+      <div class="collection-header"><h4>We've <span class='bigger-text'>found <%= pluralize(searched_projects.count, 'match') %></span> for your search.</h4></div>
       <% searched_projects.each do |project| %>
-        <li><%= link_to project.github_name, show_last_report_path(project.github_owner, project.github_name) %></li>
+      <%= link_to show_last_report_path(project.github_owner, project.github_name), class: "collection-item" do %>
+
+      <% unless project.has_last_report_analyses %>
+      <span class="new badge blue-grey darken-2" data-badge-caption="WAITING TO BE ANALYSE"></span>
       <% end %>
-    </ul>
+      <span class="blue-grey-text text-darken-2">
+        <i class="material-icons"><%= project.github_private ? 'lock' : 'public' %></i>
+        <%= project.github_owner %>/<%= project.github_name %>
+      </span>
+
+      <% end %>
+      <% end %>
+    </div>
+
   </div>
+</div>
 <% end %>

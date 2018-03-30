@@ -1,4 +1,4 @@
-class InitialSchema < ActiveRecord::Migration
+class InitialSchema < ActiveRecord::Migration[4.2]
   def change
     create_table :projects do |t|
       t.string :github_url
@@ -53,6 +53,6 @@ class InitialSchema < ActiveRecord::Migration
     add_reference :reports, :rails_best_practices_analysis, index: true, foreign_key: true
     add_reference :reports, :model_diagram_analysis, index: true, foreign_key: true
 
-    add_column :users, :github_token, :string
+    add_column :woodlock_users, :github_token, :string
   end
 end

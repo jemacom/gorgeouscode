@@ -1,4 +1,4 @@
-class OmniauthCallbacksController < Devise::OmniauthCallbacksController
+class Woodlock::Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   def facebook
     woodlock_oauth_callback("facebook")
   end
@@ -16,11 +16,11 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   def woodlock_oauth_callback(kind)
     auth = request.env["omniauth.auth"]
     if auth
-      user = User.find_or_create_with_oauth(auth)
+      user = Woodlock::User.find_or_create_with_oauth(auth)
       if user.persisted?
         perform_callback_actions(user, auth, kind)
       else
-        redirect_to new_user_session_url, alert: "User was not persisted. Check #{auth.provider.titleize} credentials."
+        redirect_to new_user_session_url, alert: "Woodlock::User was not persisted. Check #{auth.provider.titleize} credentials."
       end
     else
       redirect_to new_user_session_url, alert: "There was a problem making the omniauth request."
@@ -35,9 +35,10 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def update_user_info_from_auth(user, auth)
-    user.update_name_from_auth(auth)
-    user.update_photo_url_from_auth(auth)
-    user.update_gender_from_auth(auth)
+    # TODO: This code was not running
+    #user.update_name_from_auth(auth)
+    #user.update_photo_url_from_auth(auth)
+    #user.update_gender_from_auth(auth)
     user.update_github_nickname(auth)
     user.update_github_token(auth)
   end
@@ -52,7 +53,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def new_owner_user?(project, user)
-    project.owner_user.nil? && project.github_owner == user.github_nickname
+    project.owner_user.nil? && project.github_owner == user.github_username
   end
 
   def assign_owner_user(project, user)

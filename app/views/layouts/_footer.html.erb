@@ -1,26 +1,26 @@
-
 <footer class="page-footer">
   <div class="container">
     <div class="row">
       <div class="col l6 s12">
-        <p class="grey-text text-lighten-4">Made with ♥ by Miguel Regedor</p>
-        <p class="grey-text text-lighten-4">Hosted by Freeletics Engineering</p>
+        <p class="grey-text text-lighten-4">Hosted by <%= link_to 'Freeletics Engineering', 'http://freeletics.engineering', target: '_blank', class: 'grey-text text-lighten-3' %></p>
       </div>
       <div class="col l4 offset-l2 s12">
-        <h5 class="white-text">Links</h5>
+        <h5 class="white-text">Links / Credits</h5>
         <ul>
-          <li><%= link_to 'Miguel Regedor', 'http://www.miguelregedor.com', target: '_blank', class: 'grey-text text-lighten-3' %></li>
+          <li><%= link_to 'Previous Version of GC', 'https://gorgeouscode-alpha.herokuapp.com', target: '_blank', class: 'grey-text text-lighten-3' %></li>
+          <li><%= link_to 'Initial Study', 'http://study.gorgeouscode.com/', target: '_blank', class: 'grey-text text-lighten-3'  %></li>
+          <li><%= link_to 'Initial Study App', 'http://app.study.gorgeouscode.com/', target: '_blank', class: 'grey-text text-lighten-3' %></li>
           <li><%= link_to 'Rails Best Practices', 'https://github.com/flyerhzm/rails_best_practicesm', target: '_blank', class: 'grey-text text-lighten-3' %></li>
           <li><%= link_to 'Railroady', 'https://github.com/preston/railroady', target: '_blank', class: 'grey-text text-lighten-3' %></li>
+          <li><%= link_to 'Miguel Fernandes', 'https://about.me/it.miguelfernandes', target: '_blank', class: 'grey-text text-lighten-3' %></li>
           <li><%= link_to 'Freeletics', 'http://www.freeletics.com', target: '_blank', class: 'grey-text text-lighten-3' %></li>
-          <li><%= link_to 'Freeletics Engineering', 'http://freeletics.engineering', target: '_blank', class: 'grey-text text-lighten-3' %></li>
         </ul>
       </div>
     </div>
   </div>
   <div class="footer-copyright">
     <div class="container">
-    © <%= Time.zone.now.year %> Gorgeous Code
+      <p class="grey-text text-lighten-4">Made with ♥ by <%= link_to 'Miguel Regedor', 'http://www.miguelregedor.com', target: '_blank', class: 'grey-text text-lighten-3' %></p>
     </div>
   </div>
 </footer>

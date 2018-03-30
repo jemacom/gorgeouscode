@@ -29,7 +29,8 @@ namespace :local_db do
   task :restore => :environment do
     cmd = nil
     with_config do |app, host, db, user|
-      cmd = "pg_restore --verbose --host #{host} --username #{user} --clean --no-owner --no-acl --dbname #{db} #{Rails.root}/db/#{app}.dump"
+      cmd = "pg_restore --verbose --host #{host} --clean --no-owner --no-acl --dbname '#{db}' '#{Rails.root}/db/#{app}.dump'"
+      #cmd = "pg_restore --verbose --host #{host} --username #{user} --clean --no-owner --no-acl --dbname '#{db}' '#{Rails.root}/db/#{app}.dump'"
     end
     Rake::Task["db:drop"].invoke
     Rake::Task["db:create"].invoke

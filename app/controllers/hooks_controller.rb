@@ -48,7 +48,7 @@ class HooksController < ApplicationController
   end
 
   def get_owner_user_from_db(json)
-    User.find_by(github_nickname: owner_user_github_nickname(json))
+    Woodlock::User.find_by(github_username: owner_user_github_nickname(json))
   end
 
   def assign_owner_user_to_project(project, owner_user)
@@ -65,7 +65,7 @@ class HooksController < ApplicationController
 
   def last_commit_hash(github_owner, github_name)
     client = Octokit::Client.new(access_token: github_owner.github_token)
-    client.commits("#{github_owner.github_nickname}/#{github_name}").first.sha
+    client.commits("#{github_owner.github_username}/#{github_name}").first.sha
   end
 
   def verify_signature(project, payload_body)

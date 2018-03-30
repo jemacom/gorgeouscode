@@ -1,167 +1,23 @@
+@import 'https://fonts.googleapis.com/icon?family=Material+Icons'
+@import 'https://fonts.googleapis.com/css?family=Courgette'
+@import "materialize/components/color-variables"
+$primary-color: color("blue-grey", "darken-2") !default
+$secondary-color: color("pink", "darken-1") !default
+@import materialize
 @import formtastic
-@import font-awesome
 @import svg-model-diagram
 @import svg-code-coverage-diagram
 @import reports
+
 
 body
   display: flex
   min-height: 100vh
   flex-direction: column
 
-main
-  flex: 1 0 auto
+.brand-logo
+  font-family: 'Courgette', cursive
 
-nav
-  background-color: rgb(61,61,61)
-
-.btn
-  background-color: rgb(35,107,232)
-
-.btn:hover
-  background-color: rgb(35,207,232)
-
-.page-footer
-  background-color: rgb(61,61,61)
-
-.alert
-  width: 100%
-  background: #F75D59
-  border: 2px solid red  
-  color: white
-  margin: 20px 0
-  padding: 15px
-
-  a
-    color: white
-    text-decoration: underline
-
-
-nav
-  width: 100%
-
-
-
-.nav-wrapper
-  width: 100%
-  position: relative
-  right: 45px
-
-header, main, footer
-  padding-left: 300px
-
-@media only screen and (min-width: 993px)
-.container
-  width: 85%
-  
-.container-main
-  margin-top: 60px
-
-ul.side-nav.fixed li
-  line-height: 44px
-
-  strong
-    padding-left: 30px
-
-
-.side-nav li.active
-  background-color: rgba(0,0,0,0.05)
-
-ul.side-nav.fixed li a
-  font-size: 13px
-  line-height: 44px
-  height: 44px
-  padding: 0 30px
-
-.side-nav li>a>i
-  float: none
-
-
-#logo-container
-  background: white
-  text-align: center
-  height: auto
-
-.overflow-auto
-  overflow: auto
-
-.display-inline
-  display: inline
-
-.display-inline-block
-  display: inline-block
-
-.margin-top-10
-  margin-top: 10px
-
-.no-opacity
-  opacity: 0
-
-.float-right
-  float: right
-
-.well.well-warning
-  background-color: #fcf8e3
-
-.photo-size
-  max-width: 40px
-  max-height: 40px
-  width: auto
-  height: auto
-
-#footer
-  padding-top: 10px
-  height: 40px
-  //background-color: lightgray
-
-.formtastic label
-  color: black
-
-.wrapper > .container.no-padding
-  padding: 0
-
-.padding-bottom-20px
-  padding-bottom: 20px
-
-.wrapper.padding-top-20px
-  padding-top: 20px
-
-.table td
-  vertical-align: middle
-  font-size: 14px
-
-.sidebar-nav-fixed
-  position: fixed
-  right: 7%
-  top: 70px
-  width: 220px
-
-.project-description
-  min-height: 50px
-
-.d
-  color: #c44
-
-html body
-  padding: 0
-
-html, body
-  height: 100%
-
-.wrapper
-  min-height: 100%
-  height: auto
-  padding: 0 0 40px
-
-.wrapper > .container
-  padding-top: 60px
-
-h4 span.bigger-text
-  font-size: 30px
-  color: green
-
-.display-block
-  display: block
 
 .analysed-padding
   padding: 1.5em
@@ -171,6 +27,3 @@ h4 span.bigger-text
 
 a:hover
   text-decoration: none
-
-.margin-right-10
-  margin-right: 10px

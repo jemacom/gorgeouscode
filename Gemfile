@@ -2,26 +2,26 @@ source "https://rubygems.org"
 
 ruby "2.5.0"
 
-gem "rails", "4.2.4"
-gem "pg", '~> 0.20.0'
+gem 'rails', '>= 5.2.0.rc2'
+gem 'activeadmin'
+gem "woodlock", git: "https://github.com/regedor/woodlock.git"
 gem "sass-rails", "~> 5.0"
+gem 'materialize-sass', '~> 1.0.0.beta'
+gem "pg", '~> 0.20.0'
 gem "uglifier", ">= 1.3.0"
-gem "coffee-rails", "~> 4.1.0"
 gem "jquery-rails"
-gem "jbuilder", "~> 2.0"
+gem 'turbolinks', '~> 5'
+gem "jbuilder", "~> 2.5"
 gem "sdoc", "~> 0.4.0", group: :doc
 gem "thin"
 gem "haml"
 gem "factory_girl"
 gem "hirb", "~> 0.7.3"
-gem "formtastic", "~> 3.0"
-gem "rails_best_practices-gorgeouscode", require: "rails_best_practices"
+gem "formtastic", "> 3.0"
+#gem "rails_best_practices-gorgeouscode", require: "rails_best_practices"
 gem "octokit", "~> 4.1", ">= 4.1.1"
-gem "woodlock", git: "https://github.com/regedor/woodlock.git"
-gem "where-or"
 gem "delayed_job_active_record", "~> 4.1"
 gem "daemons"
-gem "font-awesome-rails", "~> 4.5", ">= 4.5.0.1"
 
 group :development, :test do
   gem "byebug"

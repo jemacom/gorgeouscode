@@ -1,4 +1,4 @@
-class CreateCodeCoverageAnalyses < ActiveRecord::Migration
+class CreateCodeCoverageAnalyses < ActiveRecord::Migration[4.2]
   def change
     create_table :code_coverage_analyses do |t|
       t.float :percent

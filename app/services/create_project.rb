@@ -20,7 +20,7 @@ class CreateProject
 
   # Returns true if the project's github_owner already exists in the db.
   def owner_user_in_db?
-    User.find_by(github_nickname: @project.github_owner) ? true : false
+    Woodlock::User.find_by(github_username: @project.github_owner) ? true : false
   end
 
   def save_project

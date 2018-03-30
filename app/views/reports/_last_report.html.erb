@@ -16,10 +16,9 @@
   </div>
 <% end %>
 
-<%= link_to '<i class="fa fa-arrow-left"></i> Go Back'.html_safe, projects_path, class: 'btn btn-primary btn-large' %>
-<%= link_to 'Model overview', show_last_report_model_overview_path(project.github_owner, project.github_name), class: 'btn btn-primary btn-large' %>
-<%= link_to '<i class="fa fa-home"></i> Homepage'.html_safe, project.github_url, class: 'btn btn-large', target: '_blank' %>
-<%= link_to '<i class="fa fa-eye"></i> Source Code'.html_safe, project.github_url, class: 'btn btn-large', target: '_blank' %>
+<%= link_to '<i class="material-icons left">arrow_back</i>Go Back'.html_safe, projects_path, class: 'btn' %>
+<%= link_to '<i class="material-icons left">grain</i>Model overview'.html_safe, show_last_report_model_overview_path(project.github_owner, project.github_name), class: 'btn' %>
+<%= link_to '<i class="material-icons left">code</i>Source Code'.html_safe, project.github_url, class: 'btn', target: '_blank' %>
 <hr>
 
 <% if last_report && last_report.model_diagram_analysis && last_report.model_diagram_analysis.json_data? %>
@@ -34,7 +33,7 @@
   <input type="button" value="Load" id="loadBtn" />
   <input type="button" value="Save" id="saveBtn" />
   <input type="button" value="Release" id="release" />
-  
+
   <div id="svg-model-diagram">
   </div>
 

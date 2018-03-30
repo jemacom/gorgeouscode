@@ -69,13 +69,15 @@ class ProjectsController < ApplicationController
 
   def set_index_instance_variables
     @searched_projects = nil
-    @latest_public_analysed_projects = Project.latest_public_analysed(5)
     @existing_projects = []
     @missing_projects = []
 
     user_repositories = current_user ? current_user.github_repositories : false
 
-    return unless user_repositories
+    if !user_repositories
+      @latest_public_analysed_projects = Project.latest_public_analysed(100)
+      return
+    end
 
     repositories_info =
       user_repositories.map do |repository|
@@ -93,6 +95,8 @@ class ProjectsController < ApplicationController
         github_name: repositories_info.map { |info| info[:github_name] },
         github_owner: repositories_info.map { |info| info[:github_owner] }
       )
+
+    @latest_public_analysed_projects = Project.latest_public_analysed(@existing_projects.count.clamp(5, 100))
 
     existing_projects_repository_names = @existing_projects.map { |p| p.repository_name }
 

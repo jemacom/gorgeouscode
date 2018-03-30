@@ -1,6 +1,6 @@
-require Woodlock::Engine.root.join("app", "models", "user")
+require Woodlock::Engine.root.join("app", "models", "woodlock", "user")
 
-class User < ActiveRecord::Base
+class Woodlock::User #< ActiveRecord::Base
   has_many :added_projects, class_name: "Project", foreign_key: "added_by_user_id"
   has_many :owned_projects, class_name: "Project", foreign_key: "owner_user_id"
 
@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
 
   def update_github_nickname(auth)
     return unless auth.provider == "github"
-    self.github_nickname = auth.info.nickname
+    self.github_username = auth.info.nickname
   end
 
   def update_github_token(auth)

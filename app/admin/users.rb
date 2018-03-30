@@ -1,8 +1,8 @@
-ActiveAdmin.register User do
+ActiveAdmin.register Woodlock::User do
   permit_params :first_name, :last_name, :email, :password, :password_confirmation, :confirmed_at
 
   form do |f|
-    f.inputs "User info" do
+    f.inputs "Woodlock::User info" do
       f.input :first_name
       f.input :last_name
       f.input :email

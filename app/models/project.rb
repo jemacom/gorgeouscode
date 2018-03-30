@@ -3,8 +3,8 @@ require "yaml"
 require "shellwords"
 
 class Project < ActiveRecord::Base
-  belongs_to :added_by_user, class_name: "User", foreign_key: "added_by_user_id"
-  belongs_to :owner_user, class_name: "User", foreign_key: "owner_user_id"
+  belongs_to :added_by_user, class_name: "Woodlock::User", foreign_key: "added_by_user_id"
+  belongs_to :owner_user, class_name: "Woodlock::User", foreign_key: "owner_user_id"
   belongs_to :github_account
 
   has_many :reports, dependent: :destroy
@@ -50,8 +50,8 @@ class Project < ActiveRecord::Base
 
   # Returns the latest n public and analysed projects, ordered by created_at.
   def self.latest_public_analysed(n)
-    with_analysis
-      .public_repositories
+    #with_analysis
+    public_repositories
       .order("created_at DESC")
       .limit(n)
   end
@@ -62,7 +62,7 @@ class Project < ActiveRecord::Base
 
   # Creates Github webhook for the project
   def create_github_hook
-    owner_user = User.find_by(github_nickname: github_owner)
+    owner_user = Woodlock::User.find_by(github_username: github_owner)
     return false unless owner_user
 
     client = Octokit::Client.new(access_token: owner_user.github_token)
@@ -83,7 +83,7 @@ class Project < ActiveRecord::Base
   end
 
   def remove_github_hook
-    owner_user = User.find_by(github_nickname: github_owner)
+    owner_user = Woodlock::User.find_by(github_username: github_owner)
     return unless owner_user && github_webhook_id.nil?
 
     client = Octokit::Client.new(access_token: owner_user.github_token)

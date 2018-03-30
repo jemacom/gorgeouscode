@@ -1,8 +1,8 @@
 require "test_helper"
 
 class ProjectTest < ActiveSupport::TestCase
-  should belong_to(:added_by_user).class_name("User").with_foreign_key("added_by_user_id")
-  should belong_to(:owner_user).class_name("User").with_foreign_key("owner_user_id")
+  should belong_to(:added_by_user).class_name("Woodlock::User").with_foreign_key("added_by_user_id")
+  should belong_to(:owner_user).class_name("Woodlock::User").with_foreign_key("owner_user_id")
   should belong_to(:github_account)
   should have_many(:reports)
   should validate_uniqueness_of(:github_url)
@@ -40,7 +40,7 @@ class ProjectTest < ActiveSupport::TestCase
   def test_has_logged_in_search_class_method_returning_analysed_projects_with_user_access
     current_user = users(:miguelfernandes)
 
-    User.any_instance.stubs(:github_repository_access?).returns(true)
+    Woodlock::User.any_instance.stubs(:github_repository_access?).returns(true)
     assert_equal 2, Project.logged_in_search("miguelfernandes", current_user).count
     assert_equal 1, Project.logged_in_search("miguelregedor", current_user).count
 
