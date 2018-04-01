@@ -6,8 +6,8 @@ class PerformAnalysesJob < ActiveJob::Base
     Log.info "GC::PerformAnalysesJob#perform Created RailsBestPracticesAnalysis COMMENTED OUT"
     model_diagram_analysis = Analyses::ModelDiagramAnalysis.create!(report: report)
     Log.info "GC::PerformAnalysesJob#perform Created ModelDiagramAnalysis(Id:#{model_diagram_analysis.id})"
-    #code_coverage_analysis = Analyses::CodeCoverageAnalysis.create!(report: report)
-    Log.info "GC::PerformAnalysesJob#perform Created CodeCoverageAnalysis COMMENTED OUT"
+    code_coverage_analysis = Analyses::CodeCoverageAnalysis.create!(report: report)
+    Log.info "GC::PerformAnalysesJob#perform Created CodeCoverageAnalysis"
 
     connection = VMConnection.new(report)
     begin
@@ -15,8 +15,8 @@ class PerformAnalysesJob < ActiveJob::Base
       #rails_best_practices_analysis.run
       Log.info "GC::PerformAnalysesJob Starts ModelDiagramAnalysis#run"
       model_diagram_analysis.run
-      Log.info "GC::PerformAnalysesJob#perform Starts CodeCoverageAnalysis#run COMMENTED OUT"
-      #code_coverage_analysis.run
+      Log.info "GC::PerformAnalysesJob#perform Starts CodeCoverageAnalysis#run"
+      code_coverage_analysis.run
 
       finish_report(report)
     rescue Exception

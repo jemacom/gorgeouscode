@@ -13,7 +13,7 @@ class Project < ActiveRecord::Base
   before_destroy :remove_github_hook
   after_create :update_github_info
 
-  serialize :github_collaborators
+  serialize :github_collaborators, Array
 
   validates :github_url, uniqueness: true, format: { with: %r{https:\/\/github.com\/.*} }
 
@@ -69,6 +69,7 @@ class Project < ActiveRecord::Base
     self.github_secret_token = SecureRandom.hex(20)
     save
 
+    # TODO: Not working.
     create_hook_response =
       client.create_hook(
         repository_name,
@@ -125,9 +126,9 @@ class Project < ActiveRecord::Base
     self.github_open_issues = github_repository.open_issues
     self.github_pushed_at = github_repository.pushed_at
     self.github_created_at = github_repository.created_at
-    self.github_collaborators =
-      client.collaborators(repository_name) if github_private
-    save
+    self.github_collaborators = client.collaborators(repository_name).map(&:to_hash) if self.github_private
+
+    self.save
   end
 
   def last_percents(n)

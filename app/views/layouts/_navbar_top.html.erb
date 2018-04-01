@@ -1,15 +1,19 @@
-<ul id="dropdown1" class="dropdown-content">
+<ul id="account_dropdown" class="dropdown-content">
   <li><%= link_to t('sign_out'), destroy_user_session_path, method: 'delete' %></li>
 </ul>
 
 <nav>
   <div class="nav-wrapper container">
-    <a href="#!" class="brand-logo"><i class="material-icons">star</i>Gorgeous Code</a>
+    <a href="/" class="brand-logo">
+      <i class="material-icons">star</i>
+      <span class="hide-on-small-only">Gorgeous Code</span>
+      <span class="hide-on-med-and-up">GC</span>
+    </a>
     <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
     <ul class="right hide-on-med-and-down">
-      <li><%= link_to 'Projects', projects_path %></li>
+      <li><%= link_to 'Repositories', projects_path %></li>
       <% if user_signed_in? %>
-      <li><a class="dropdown-trigger" href="#!" data-target="dropdown1"><%= current_user.full_name %><i class="material-icons right">arrow_drop_down</i></a></li>
+      <li><a class="dropdown-trigger" href="#!" data-target="account_dropdown"><%= current_user.full_name %><i class="material-icons right">arrow_drop_down</i></a></li>
       <% else %>
       <li><%= link_to t('sign_in'), new_user_session_path, class: 'btn btn-default navbar-btn' %></li>
       <% end %>
@@ -18,8 +22,10 @@
 </nav>
 
 <ul class="sidenav" id="nav-mobile">
-  <li><a href="sass.html">Sass</a></li>
-  <li><a href="badges.html">Components</a></li>
-  <li><a href="collapsible.html">Javascript</a></li>
-  <li><a href="mobile.html">Mobile</a></li>
+  <li><%= link_to 'Repositories', projects_path %></li>
+  <% if user_signed_in? %>
+  <li><%= link_to t('sign_out'), destroy_user_session_path, method: 'delete' %></li>
+  <% else %>
+  <li><%= link_to t('sign_in'), new_user_session_path %></li>
+  <% end %>
 </ul>

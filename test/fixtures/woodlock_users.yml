@@ -3,13 +3,17 @@ miguelregedor:
   encrypted_password: <%= Woodlock::User.new.send(:password_digest, "password") %>
   first_name: Miguel
   last_name: Regedor
-  confirmed_at: <%= Date.yesterday %> 
+  confirmed_at: <%= Date.yesterday %>
   github_token: f595f78b6731645460555d9eb6e6524386ed43de
+  created_at: <%= Date.yesterday - 1.day %>
+  updated_at: <%= Date.yesterday %>
 
 miguelfernandes:
   email: miguelfernandes@mail.com
   encrypted_password: <%= Woodlock::User.new.send(:password_digest, "password") %>
   first_name: Miguel
   last_name: Fernandes
-  confirmed_at: <%= Date.yesterday %> 
+  confirmed_at: <%= Date.yesterday %>
   github_token: f595f78b6731645460555d9eb6e6524386ed43de
+  created_at: <%= Date.yesterday - 1.day %>
+  updated_at: <%= Date.yesterday %>

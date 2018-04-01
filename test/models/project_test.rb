@@ -38,7 +38,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_has_logged_in_search_class_method_returning_analysed_projects_with_user_access
-    current_user = users(:miguelfernandes)
+    current_user = woodlock_users(:miguelfernandes)
 
     Woodlock::User.any_instance.stubs(:github_repository_access?).returns(true)
     assert_equal 2, Project.logged_in_search("miguelfernandes", current_user).count

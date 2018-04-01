@@ -11,6 +11,7 @@ SimpleCov.start
 
 class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
+  set_fixture_class :woodlock_users => Woodlock::User
   fixtures :all
 
   # Add more helper methods to be used by all tests here...
