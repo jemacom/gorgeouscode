@@ -49,7 +49,7 @@ Rails.application.configure do
   # For printing the `Rails.logger.debug`
   config.logger = Logger.new(STDOUT)
 
-  config.active_job.queue_adapter = :delayed_job
+  config.active_job.queue_adapter = :sidekiq
   #config.active_job.queue_adapter = :inline
 
   config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
