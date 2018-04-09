@@ -23,8 +23,9 @@ gem "octokit", "~> 4.1", ">= 4.1.1"
 gem "sidekiq"
 gem "daemons"
 
+gem "byebug"
+
 group :development, :test do
-  gem "byebug"
   gem "colorize"
   gem "annotate"
   gem "capybara", "~> 2.5"
