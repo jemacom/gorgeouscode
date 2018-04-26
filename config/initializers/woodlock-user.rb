@@ -11,11 +11,19 @@ class Woodlock::User #< ActiveRecord::Base
   def update_github_nickname(auth)
     return unless auth.provider == "github"
     self.github_username = auth.info.nickname
+
+    save
   end
 
   def update_github_token(auth)
     return unless auth.provider == "github"
-    self.github_token = auth.credentials.token
+
+    token = auth.credentials.token
+
+    raise "Couldn't find token in #{auth}" unless token
+    self.github_token = token
+
+    save
   end
 
   def github_repository_access?(repository_name)
