@@ -1,0 +1,28 @@
+version: '3'
+services:
+  setup:
+    build: .
+    depends_on:
+      - db
+    command: "bin/bundle exec rake db:schema:load RAILS_ENV=development"
+  db:
+    image: postgres:9.6-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecurepass
+      - POSTGRES_DB=gorgeous-code_development
+      - PGDATA=/var/lib/postgresql/data
+  db_data:
+    image: postgres:9.6-alpine
+    volumes:
+      - /var/lib/postgresql/data
+    command: "/bin/true"
+  web:
+    build: .
+    command: "bin/bundle exec rails s -p 3000 -b 0.0.0.0 RAILS_ENV=development"
+    volumes:
+      - .:/freeletics
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
