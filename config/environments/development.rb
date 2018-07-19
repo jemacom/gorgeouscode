@@ -53,4 +53,7 @@ Rails.application.configure do
   #config.active_job.queue_adapter = :inline
 
   config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+
+  # To be removed
+  Devise.secret_key  = '99da36da2b80b6b4c3873abff15ce7df50a20ed671e5b20dba832a15e72bb9c932bd5b43441a4429a0a6fe9edd954b2024741355b4d507e811f98031044b1934'
 end
